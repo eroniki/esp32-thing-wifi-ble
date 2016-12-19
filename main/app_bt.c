@@ -59,7 +59,18 @@ typedef uint8_t bd_addr_t[BD_ADDR_LEN];         /* Device address */
 #define ARRAY_TO_STREAM(p, a, len) {int ijk; for (ijk = 0; ijk < len;        ijk++) *(p)++ = (uint8_t) a[ijk];}
 
 static EventGroupHandle_t wifi_event_group;
+
 static const char *TAG = "example";
+
+char SSID_BLE[] = "SENSORNET_CMS_0_BLE";
+
+wifi_config_t wifi_config = {
+    .ap = {
+        .ssid = "SENSORNET_CMS_0",
+        .password = "0a0b0c0d0e",
+    },
+};
+
 enum {
     H4_TYPE_COMMAND = 1,
     H4_TYPE_ACL     = 2,
@@ -194,14 +205,14 @@ static void hci_cmd_send_ble_set_adv_param(void)
 
 static void hci_cmd_send_ble_set_adv_data(void)
 {
-    char *adv_name = "ESP-BLE-HELLO";
-    uint8_t name_len = (uint8_t)strlen(adv_name);
+    // char *adv_name = SSID_BLE;
+    uint8_t name_len = (uint8_t)strlen(SSID_BLE);
     uint8_t adv_data[31] = {0x02, 0x01, 0x06, 0x0, 0x09};
     uint8_t adv_data_len;
 
     adv_data[3] = name_len + 1;
     for (int i = 0; i < name_len; i++) {
-        adv_data[5 + i] = (uint8_t)adv_name[i];
+        adv_data[5 + i] = (uint8_t)SSID_BLE[i];
     }
     adv_data_len = 5 + name_len;
 
@@ -262,12 +273,7 @@ static void initialise_wifi(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
     ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-    wifi_config_t wifi_config = {
-        .ap = {
-            .ssid = "SENSORNET_CMS_16",
-            .password = "0a0b0c0d0e",
-        },
-    };
+
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.ap.ssid);
     ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_AP) );
     ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config) );
